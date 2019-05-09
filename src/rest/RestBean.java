@@ -94,6 +94,7 @@ public class RestBean implements RestAPI{
 	@Path("/node")
 	public Response isAlive()
 	{
+		System.out.println("Ziv je");
 		return Response.status(200).build();
 	}
 	

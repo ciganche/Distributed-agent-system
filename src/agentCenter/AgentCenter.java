@@ -6,7 +6,8 @@ import java.util.ArrayList;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.ejb.AccessTimeout;
-import javax.ejb.EJB;
+import javax.ejb.Lock;
+import javax.ejb.LockType;
 import javax.ejb.Schedule;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
@@ -20,12 +21,12 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 
 import config.ReadConfigUtil;
-import rest.RestBean;
 
 
 
 @Startup
 @Singleton
+@Lock(LockType.READ)
 public class AgentCenter 
 {
 	private String alias; //primary key
@@ -34,9 +35,7 @@ public class AgentCenter
 	private ArrayList<Node> nodes;
 	ResteasyClient client = new ResteasyClientBuilder().build();
 	//private HashMap<AID, Agent> agents = new HashMap<AID, Agent>();
-	
-	@EJB
-	RestBean rest;
+
 	
 	public AgentCenter()
 	{
