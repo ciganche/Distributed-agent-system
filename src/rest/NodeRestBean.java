@@ -2,8 +2,11 @@ package rest;
 
 
 import javax.ejb.AccessTimeout;
+import javax.ejb.ConcurrencyManagement;
 import javax.ejb.EJB;
 import javax.ejb.LocalBean;
+import javax.ejb.Lock;
+import javax.ejb.LockType;
 import javax.ejb.Stateless;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -16,16 +19,18 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import agentCenter.AgentCenter;
+import agentCenter.AgentCenterAPI;
 import agentCenter.Node;
 
 @Path("/agentCenter")
-@LocalBean //zakomentarisi local bean i probati onda @Override
+@LocalBean
 @Stateless
-public class RestBean implements RestAPI{
+@AccessTimeout(-1)
+public class NodeRestBean implements NodeRestAPI{
 
 
 	@EJB 
-	AgentCenter center;
+	AgentCenterAPI center;
 
 	
 	@POST
@@ -49,9 +54,9 @@ public class RestBean implements RestAPI{
 		}
 	}
 
+	
 	@DELETE
 	@Path("/node/{alias}")
-	@AccessTimeout(-1)
 	public Response deleteNode(@PathParam("alias") String alias) 
 	{	
 		

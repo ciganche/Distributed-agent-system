@@ -16,6 +16,14 @@ public class AID implements Serializable
 		
 	}
 	
+	public AID(String name, Node host, AgentType type)
+	{
+		super();
+		this.name = name;
+		this.host = host;
+		this.type = type;
+	}
+
 	
 	public AgentType getType() {
 		return type;

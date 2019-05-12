@@ -2,10 +2,14 @@ package agentCenter;
 
 
 
+import java.awt.List;
 import java.util.ArrayList;
+import java.util.HashMap;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.ejb.AccessTimeout;
+import javax.ejb.EJB;
 import javax.ejb.Lock;
 import javax.ejb.LockType;
 import javax.ejb.Schedule;
@@ -21,28 +25,41 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 
 import config.ReadConfigUtil;
+import rest.NodeRestAPI;
+import agent.Agent;
+import agent.AgentAPI;
+import agent.AID;
+import agent.AgentType;
 
 
 
 @Startup
 @Singleton
 @Lock(LockType.READ)
-public class AgentCenter 
+@AccessTimeout(-1)
+public class AgentCenter implements AgentCenterAPI
 {
 	private String alias; //primary key
 	private String address; //IP address
 	private String masteraddress; //IP addrress of the master node
-	private ArrayList<Node> nodes;
+	private ArrayList<Node> nodes = new ArrayList<Node>();
 	ResteasyClient client = new ResteasyClientBuilder().build();
-	//private HashMap<AID, Agent> agents = new HashMap<AID, Agent>();
-
+	
+	private HashMap<AID, AgentAPI> agents = new HashMap<AID, AgentAPI>();
+	private ArrayList<AgentType> types = new ArrayList<AgentType>();
+	
+	@EJB
+	NodeRestAPI rest;
 	
 	public AgentCenter()
 	{
 		
 	}
 	
-	
+	/* (non-Javadoc)
+	 * @see agentCenter.AgentCenterAPI#Init()
+	 */
+	@Override
 	@PostConstruct
 	public void Init() 
 	{
@@ -80,6 +97,10 @@ public class AgentCenter
 	}
 	
 	
+	/* (non-Javadoc)
+	 * @see agentCenter.AgentCenterAPI#cleanUp()
+	 */
+	@Override
 	@PreDestroy
 	public void cleanUp() 
 	{
@@ -92,8 +113,11 @@ public class AgentCenter
 		}
 	}
 	
-	
-	private void registerAtMasterNode() 
+	/* (non-Javadoc)
+	 * @see agentCenter.AgentCenterAPI#registerAtMasterNode()
+	 */
+	@Override
+	public void registerAtMasterNode() 
 	{
         ResteasyWebTarget target = client.target("http://" + masteraddress +"/AgentTechnology/rest/agentCenter/node");
         try
@@ -109,12 +133,14 @@ public class AgentCenter
         
     }
 	
-	
-	@Schedule(hour="*", minute="*", second="*/15")
-	@AccessTimeout(-1)
-	private void heartbratProtocol()
+	/* (non-Javadoc)
+	 * @see agentCenter.AgentCenterAPI#heartbratProtocol()
+	 */
+	@Override
+	@Schedule(hour="*", minute="*", second="*/25", persistent = false)
+	public synchronized void heartbratProtocol()
 	{
-		for(Node n : nodes)
+		for(Node n : this.getNodes())
 		{
 			if(n.getAlias().equals(this.alias))
 				continue;
@@ -134,41 +160,30 @@ public class AgentCenter
 			{
 				try
 				{
-					System.out.println("APP INFO: Salje se na: " + masteraddress);
-					ResteasyWebTarget target2 = client.target("http://" + masteraddress +"/AgentTechnology/rest/agentCenter/node/" + n.getAlias());
-					Response response = target2.request().delete();
-					System.out.println("APP INFO: Node " + n.getAlias() + " is being shut down because it is not responding according to the heartbeat protocol.");				
-					System.out.println("APP INFO: Delation returned status: " + response.getStatus());
-
-				
-				}
-				catch(Exception e2)
-				{
-					System.out.println("APP INFO: greska?");
-				}
-				/*
-				System.out.println("APP INFO: Node " + n.getAlias() + " is not responding - another check-up is requiered.");
-				//repeat the request
-				try
-				{
-					Response response = target.request().get();
-					
-					if(response.getStatus()!=200)
+					if(!alias.equals("master"))
 					{
-						throw new Exception();
+						System.out.println("APP INFO: Salje se na: " + masteraddress);
+						ResteasyWebTarget target2 = client.target("http://" + masteraddress +"/AgentTechnology/rest/agentCenter/node/" + n.getAlias());
+						Response response = target2.request().delete();
+						System.out.println("APP INFO: Node " + n.getAlias() + " is being shut down because it is not responding according to the heartbeat protocol.");				
+						System.out.println("APP INFO: Delation returned status: " + response.getStatus());
+						
+						
+						//TODO: dodaj sve tipove kada je cvor master
+						
+					}
+					else
+					{
+						Node toBeDeleted = findNode(n.getAlias());
+						deleteFromAllNodes(toBeDeleted);
+						deleteNode(toBeDeleted);
+						System.out.println("APP INFO: Deleted from master node.");
 					}
 				}
 				catch(Exception e2)
 				{
-					//shut down node
-					ResteasyWebTarget target2 = client.target("http://" + masteraddress +"/AgentTechnology/rest/agentCenter/node/" + n.getAlias());
-					Response response = target2.request().delete();
-					System.out.println("APP INFO: Node " + n.getAlias() + " is being shut down because it is not responding according to the heartbeat protocol.");
-
-				}
-				
-				*/
-				
+					System.out.println("APP INFO: Delation error for: " + n.getAlias());
+				}	
 			}
 
 		}
@@ -178,7 +193,10 @@ public class AgentCenter
 
 	
 	
-	// * * * MASTER NODE FUNCTIONS * * *	
+	/* (non-Javadoc)
+	 * @see agentCenter.AgentCenterAPI#informOtherNodes(agentCenter.AgentCenter)
+	 */
+	@Override
 	public void  informOtherNodes(AgentCenter newNode) 
 	{
 		if(!alias.equals("master"))
@@ -217,7 +235,10 @@ public class AgentCenter
         System.out.println("APP INFO: " + counter + " nodes were informed about the new member: " + newNode.address + ".");    	
 	}
 
-	
+	/* (non-Javadoc)
+	 * @see agentCenter.AgentCenterAPI#deleteFromAllNodes(agentCenter.Node)
+	 */
+	@Override
 	public void deleteFromAllNodes(Node toBeDeleted) 
 	{
 		if(!alias.equals("master"))
@@ -256,7 +277,10 @@ public class AgentCenter
 	
 	
 	
-	
+	/* (non-Javadoc)
+	 * @see agentCenter.AgentCenterAPI#handleMessage()
+	 */
+	@Override
 	public void handleMessage()
 	{
 		
@@ -265,47 +289,151 @@ public class AgentCenter
 	
 	// * * * GET & SET * * * 
 	
+
+	/* (non-Javadoc)
+	 * @see agentCenter.AgentCenterAPI#getAlias()
+	 */
+	@Override
 	public String getAlias() {
 		return alias;
 	}
 
+
+	/* (non-Javadoc)
+	 * @see agentCenter.AgentCenterAPI#setAlias(java.lang.String)
+	 */
+	@Override
+	@Lock(LockType.WRITE)
 	public void setAlias(String alias) {
 		this.alias = alias;
 	}
 
+
+	/* (non-Javadoc)
+	 * @see agentCenter.AgentCenterAPI#getAddress()
+	 */
+	@Override
 	public String getAddress() {
 		return address;
 	}
 
+
+	/* (non-Javadoc)
+	 * @see agentCenter.AgentCenterAPI#setAddress(java.lang.String)
+	 */
+	@Override
+	@Lock(LockType.WRITE)
 	public void setAddress(String address) {
 		this.address = address;
 	}
 
-	public ArrayList<Node> getNodes() {
-		return nodes;
+
+	//TODO:
+	/* (non-Javadoc)
+	 * @see agentCenter.AgentCenterAPI#getNodes()
+	 */
+	@Override
+	@Lock(LockType.WRITE)
+	public ArrayList<Node> getNodes() 
+	{
+		ArrayList<Node> l = new ArrayList<Node>();
+		
+		for(Node n : nodes) 
+		{
+			l.add(new Node(n));
+		}
+		return l;
 	}
 
+
+	/* (non-Javadoc)
+	 * @see agentCenter.AgentCenterAPI#setNodes(java.util.ArrayList)
+	 */
+	@Override
+	@Lock(LockType.WRITE)
 	public void setNodes(ArrayList<Node> imenik) {
 		this.nodes = imenik;
 	}	
 	
+
+	/* (non-Javadoc)
+	 * @see agentCenter.AgentCenterAPI#getMasteraddress()
+	 */
+	@Override
 	public String getMasteraddress() {
 		return masteraddress;
 	}
 
+
+	/* (non-Javadoc)
+	 * @see agentCenter.AgentCenterAPI#setMasteraddress(java.lang.String)
+	 */
+	@Override
+	@Lock(LockType.WRITE)
 	public void setMasteraddress(String masteraddress) {
 		this.masteraddress = masteraddress;
 	}
 	
 	
+	
+	/* (non-Javadoc)
+	 * @see agentCenter.AgentCenterAPI#getAgents()
+	 */
+	@Override
+	public HashMap<AID, AgentAPI> getAgents()
+	{
+		return agents;
+	}
+
+	/* (non-Javadoc)
+	 * @see agentCenter.AgentCenterAPI#setAgents(java.util.HashMap)
+	 */
+	@Override
+	@Lock(LockType.WRITE)
+	public void setAgents(HashMap<AID, AgentAPI> agents) 
+	{
+		this.agents = agents;
+	}
+	
+	/* (non-Javadoc)
+	 * @see agentCenter.AgentCenterAPI#getTypes()
+	 */
+	@Override
+	public ArrayList<AgentType> getTypes()
+	{
+		return types;
+	}
+
+	/* (non-Javadoc)
+	 * @see agentCenter.AgentCenterAPI#setTypes(java.util.ArrayList)
+	 */
+	@Override
+	@Lock(LockType.WRITE)
+	public void setTypes(ArrayList<AgentType> types)
+	{
+		this.types = types;
+	}
+	
+	
 	// * * * NODES LIST FUNCTIONS * * *
 	
+
+	/* (non-Javadoc)
+	 * @see agentCenter.AgentCenterAPI#addNode(agentCenter.AgentCenter)
+	 */
+	@Override
+	@Lock(LockType.WRITE)
 	public void addNode(AgentCenter a)
 	{
 		nodes.add(new Node(a.alias,a.address));
 	}
 
 
+
+	/* (non-Javadoc)
+	 * @see agentCenter.AgentCenterAPI#findNode(java.lang.String)
+	 */
+	@Override
 	public Node findNode(String alias) 
 	{
 		for(Node n : nodes)
@@ -318,14 +446,38 @@ public class AgentCenter
 		return null;
 	}
 	
+
+	/* (non-Javadoc)
+	 * @see agentCenter.AgentCenterAPI#deleteNode(agentCenter.Node)
+	 */
+	@Override
+	@Lock(LockType.WRITE)
 	public void deleteNode(Node n)
 	{
-		nodes.remove(n);
+		nodes.remove(n);	
 	}
 
 
+	
+	// * * * AGENT HASH MAP FUNCTIONS * * *
+	
+	@Lock(LockType.WRITE)
+	@Override
+	public void addAgent(AgentAPI agent)
+	{
+		agents.put(agent.getAid(), agent);
+	}
+	
 
 
+	// * * * AGENT TYPE LIST FUNCTIONS * * *
+	
+	@Override
+	@Lock(LockType.WRITE)
+	public void addType(AgentType type)
+	{
+		types.add(type);
+	}
 	
 	
 }

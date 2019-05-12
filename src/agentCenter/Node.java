@@ -10,6 +10,13 @@ public class Node
 		
 	}
 	
+	public Node(Node n)
+	{
+		this.alias = n.getAlias();
+		this.address = n.getAddress();
+		
+	}
+	
 	public Node(String alias, String address) {
 		super();
 		this.alias = alias;

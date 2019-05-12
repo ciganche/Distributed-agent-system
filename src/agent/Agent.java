@@ -1,7 +1,10 @@
 package agent;
 
+import javax.ejb.Stateful;
+
 import message.ACLMessage;
 
+@Stateful
 public class Agent implements AgentAPI
 {
 

@@ -14,7 +14,7 @@ import agentCenter.AgentCenter;
 
 
 @Remote
-public interface RestAPI
+public interface NodeRestAPI
 {
 	
 	@GET
