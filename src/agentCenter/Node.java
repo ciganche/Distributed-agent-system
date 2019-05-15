@@ -1,6 +1,8 @@
 package agentCenter;
 
-public class Node 
+import java.io.Serializable;
+
+public class Node implements Serializable
 {
 	private String alias;
 	private String address;

@@ -4,7 +4,10 @@ package agentCenter;
 
 import java.awt.List;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -15,6 +18,9 @@ import javax.ejb.LockType;
 import javax.ejb.Schedule;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
+import javax.naming.InitialContext;
+import javax.naming.NameClassPair;
+import javax.naming.NamingEnumeration;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
@@ -45,8 +51,8 @@ public class AgentCenter implements AgentCenterAPI
 	private ArrayList<Node> nodes = new ArrayList<Node>();
 	ResteasyClient client = new ResteasyClientBuilder().build();
 	
-	private HashMap<AID, AgentAPI> agents = new HashMap<AID, AgentAPI>();
-	private ArrayList<AgentType> types = new ArrayList<AgentType>();
+	private ArrayList<Agent> agents = new ArrayList<Agent>();
+	private HashMap<String,ArrayList<AgentType>> types = new HashMap<String,ArrayList<AgentType>>();
 	
 	@EJB
 	NodeRestAPI rest;
@@ -81,6 +87,9 @@ public class AgentCenter implements AgentCenterAPI
 			 masteraddress = address;
 			 nodes = new ArrayList<Node>(); 
 			 addNode(this); //insert itself to the node list
+			 
+			 types.put("master", getCreatableAgentTypes());
+			 
 			 System.out.println("APP INFO: The master node has registered.");
 
 		 }
@@ -122,15 +131,18 @@ public class AgentCenter implements AgentCenterAPI
         ResteasyWebTarget target = client.target("http://" + masteraddress +"/AgentTechnology/rest/agentCenter/node");
         try
         {
+        	types.put(alias,getCreatableAgentTypes());
             Response response = target.request(MediaType.APPLICATION_JSON).post(Entity.entity(this, MediaType.APPLICATION_JSON));
-            this.nodes = response.readEntity(new GenericType<ArrayList<Node>>(){});
+            AgentCenter temp = response.readEntity(new GenericType<AgentCenter>() {});
+            this.nodes = temp.getNodes();
+            this.agents = temp.getAgents();
+            this.types = temp.getTypes();
             System.out.println("APP INFO: Non-master node recived the list of all nodes from master. Size: " + nodes.size());    	
         }
         catch(Exception e)
         {
         	System.out.println("PROCESS ABORTED: The new agent center cannot connect to the cluster.");
         }
-        
     }
 	
 	/* (non-Javadoc)
@@ -380,7 +392,7 @@ public class AgentCenter implements AgentCenterAPI
 	 * @see agentCenter.AgentCenterAPI#getAgents()
 	 */
 	@Override
-	public HashMap<AID, AgentAPI> getAgents()
+	public ArrayList<Agent> getAgents()
 	{
 		return agents;
 	}
@@ -390,7 +402,7 @@ public class AgentCenter implements AgentCenterAPI
 	 */
 	@Override
 	@Lock(LockType.WRITE)
-	public void setAgents(HashMap<AID, AgentAPI> agents) 
+	public void setAgents(ArrayList<Agent> agents) 
 	{
 		this.agents = agents;
 	}
@@ -399,7 +411,7 @@ public class AgentCenter implements AgentCenterAPI
 	 * @see agentCenter.AgentCenterAPI#getTypes()
 	 */
 	@Override
-	public ArrayList<AgentType> getTypes()
+	public HashMap<String,ArrayList<AgentType>> getTypes()
 	{
 		return types;
 	}
@@ -409,7 +421,7 @@ public class AgentCenter implements AgentCenterAPI
 	 */
 	@Override
 	@Lock(LockType.WRITE)
-	public void setTypes(ArrayList<AgentType> types)
+	public void setTypes(HashMap<String,ArrayList<AgentType>> types)
 	{
 		this.types = types;
 	}
@@ -459,25 +471,120 @@ public class AgentCenter implements AgentCenterAPI
 
 
 	
-	// * * * AGENT HASH MAP FUNCTIONS * * *
+	// * * * AGENT LIST FUNCTIONS * * *
 	
 	@Lock(LockType.WRITE)
 	@Override
-	public void addAgent(AgentAPI agent)
+	public void addAgent(Agent agent)
 	{
-		agents.put(agent.getAid(), agent);
+		agents.add(agent);
 	}
-	
-
-
-	// * * * AGENT TYPE LIST FUNCTIONS * * *
 	
 	@Override
-	@Lock(LockType.WRITE)
-	public void addType(AgentType type)
+	public Agent findAgent(AID aid)
 	{
-		types.add(type);
+		for(Agent a : agents)
+		{
+			if(a.getAid().equals(aid))
+				return a;
+		}
+		return null;
 	}
+	
+
+	@Lock(LockType.WRITE)
+	@Override
+	public boolean removeRunningAgent(String type, String name)
+	{
+		Agent temp = null;
+		
+		for(Agent a : agents)
+		{
+			if(a.getAid().getName().equals(name) && a.getAid().getType().getName().equals(type))
+			{				
+				//an agent is stopped by its host
+				if(a.getAid().getHost().getAddress().equals(this.address))
+				{
+					a.stop();
+				}	
+					
+				temp = a;
+			}
+		}
+		if(temp!=null)
+		{
+			agents.remove(temp);
+			return true;
+		}
+		
+		return false;
+	}
+
+
+	// * * * AGENT TYPE HASHMAP FUNCTIONS * * *
+	@Lock(LockType.WRITE)
+	@Override
+	public void addType(ArrayList<AgentType> list, String name)
+	{
+		types.put(name, list);
+	}
+	
+
+	
+	@Override
+	public ArrayList<AgentType> getCreatableAgentTypes()
+	{
+		ArrayList<AgentType> retVal = new ArrayList<AgentType>();
+		
+		try
+		{
+			InitialContext ctx = new InitialContext();
+			NamingEnumeration<NameClassPair> list = ctx.list("java:module");
+			
+			while (list.hasMore()) 
+			{
+				String wtf = list.next().getName();
+				
+				if (wtf.contains("!instantiableAgents"))
+				{
+					retVal.add(new AgentType(wtf.split("!")[0], "instantiableAgents"));
+					System.out.println("APP INFO: found agent type: " + wtf.split("!")[0]);
+				}
+					
+			}
+
+		}
+		catch (Exception e) 
+		{
+			e.printStackTrace();
+		}
+		return retVal;
+	}
+	
+	//returns the first node which can build an agentType
+	@Override
+	public Node findNodeWithAgentType(AgentType type)
+	{
+		ArrayList<ArrayList<AgentType>> values = (ArrayList<ArrayList<AgentType>>) types.values();
+		ArrayList<String> nodeNames = new ArrayList<String>(types.keySet());
+		
+		int theIndex = -1;
+		
+		for(int i = 0 ; i < values.size() ; i ++ )
+		{
+			if(values.get(i).contains(type))
+			{
+				theIndex = i;
+				break;
+			}
+		}
+		if(theIndex == -1)
+			return null;
+		
+		Node retVal = findNode(nodeNames.get(theIndex));
+		return retVal;
+	}
+	
 	
 	
 }

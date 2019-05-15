@@ -43,12 +43,14 @@ public class NodeRestBean implements NodeRestAPI{
 		{
 			System.out.println("REST INFO: Returning all nodes from master. Size of node list: " + center.getNodes().size() + ".");
 			center.addNode(newNode);
+			center.addType(newNode.getTypes().get(newNode.getAlias()), newNode.getAlias());
 			center.informOtherNodes(newNode);
-			return center.getNodes();
+			return center;
 		}
 		else
 		{
 			center.addNode(newNode);
+			center.addType(newNode.getTypes().get(newNode.getAlias()), newNode.getAlias());
 			System.out.println("REST INFO: Informing " + center.getAlias() + " node about a non-master node. Size of node list: " + center.getNodes().size() + ".");
 			return true;
 		}
@@ -99,7 +101,7 @@ public class NodeRestBean implements NodeRestAPI{
 	@Path("/node")
 	public Response isAlive()
 	{
-		System.out.println("Ziv je");
+		System.out.println("APP INFO: Alive");
 		return Response.status(200).build();
 	}
 	

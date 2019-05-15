@@ -6,6 +6,7 @@ import message.ACLMessage;
 
 public interface AgentAPI extends Serializable
 {
+	
 	public void init(AID aid);
 	
 	public void stop();

@@ -1,19 +1,16 @@
 package rest;
 
 
+import java.awt.List;
+import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.ejb.AccessTimeout;
-import javax.ejb.ConcurrencyManagement;
 import javax.ejb.EJB;
 import javax.ejb.LocalBean;
-import javax.ejb.Lock;
-import javax.ejb.LockType;
 import javax.ejb.Stateless;
 import javax.naming.Context;
 import javax.naming.InitialContext;
-import javax.naming.NameClassPair;
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -35,9 +32,9 @@ import agent.AID;
 import agent.Agent;
 import agent.AgentAPI;
 import agent.AgentType;
-import agentCenter.AgentCenter;
 import agentCenter.AgentCenterAPI;
 import agentCenter.Node;
+import message.Performative;
 
 @Path("/agents")
 @LocalBean
@@ -51,7 +48,7 @@ public class AgentRestBean implements AgentRestAPI
 
 	@POST
 	@Path("/running/{type}/{name}")
-	public Response startAgents(String type, String name) 
+	public Response startAgents(@PathParam("type") String type,@PathParam("name") String name) 
 	{
 		
 		//TODO: napraviti zastiu od nepoznatog tipa u urlu
@@ -59,24 +56,17 @@ public class AgentRestBean implements AgentRestAPI
 		try 
 		{
 			Context context = new InitialContext();
-			/*
-			NamingEnumeration<NameClassPair> agentList = context.list("java:jboss/clustering");
-			
-			while (agentList.hasMore())
-			{
-				String ejbName = agentList.next().getName();
-				String ejbClassName = agentList.next().getClassName();
-				
-				System.out.println(ejbName + " - " + ejbClassName);
-				
-			}
-			*/
-			AgentAPI newAgent = (AgentAPI) context.lookup("java:module/" + type);
-			AID aid = new AID(name,new Node(center.getAlias(),center.getAddress()), new AgentType(name,null));
+
+		
+			AgentAPI agent = (AgentAPI) context.lookup("java:module/" + type);
+			AID aid = new AID(name,new Node(center.getAlias(),center.getAddress()), new AgentType(type,"agent"));
+			Agent newAgent = (Agent) agent;
 			newAgent.setAid(aid);
 			center.addAgent(newAgent);
-			
 			context.close();
+			
+			System.out.println("APP INFO: Agent started: " + newAgent.getAid().getName() + " - " + newAgent.getAid().getType());
+			
 			
 			//inform all other nods that a agent is active
 			ResteasyClient client = new ResteasyClientBuilder().build();
@@ -89,6 +79,7 @@ public class AgentRestBean implements AgentRestAPI
 				try
 				{
 					ResteasyWebTarget target = client.target("http://" + n.getAddress() +"/AgentTechnology/rest/agents/addRunningAgent");
+					
 					Response response = target.request(MediaType.APPLICATION_JSON).put(Entity.entity(newAgent, MediaType.APPLICATION_JSON)); 	
 				
 					if(response.getStatus()!=200)
@@ -110,11 +101,11 @@ public class AgentRestBean implements AgentRestAPI
 		}
 		catch (NamingException e) 
 		{
+			e.printStackTrace();
 			return Response.status(500).build();
 		}
 		
 	}
-
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/addRunningAgent")
@@ -122,24 +113,98 @@ public class AgentRestBean implements AgentRestAPI
 	{	
 		center.addAgent(newAgent);
 
-		System.out.println("APP INFO: Running agent added to: " + center.getAlias());
+		System.out.println("APP INFO: Added to: " + center.getAlias() + " and agent started: " + newAgent.getAid().getName() + " - " + newAgent.getAid().getType());
+
+		return Response.status(200).build();
+	}
+	
+	
+	
+	
+	
+	@DELETE
+	@Path("/running/{type}/{name}")
+	public Response deleteAgent(@PathParam("type") String type,@PathParam("name") String name)
+	{
+		
+		if(!center.removeRunningAgent(type,name))
+		{
+			System.out.println("PROCESS ABORTED: Delation of running agent for node " + center.getAlias() + " failed");
+			return Response.status(500).build();
+		}
+		
+		ResteasyClient client = new ResteasyClientBuilder().build();
+		for(Node n : center.getNodes())
+		{
+			
+			if(n.getAddress().equals(center.getAddress()))
+				continue;
+			
+			try
+			{
+				ResteasyWebTarget target = client.target("http://" + n.getAddress() +"/AgentTechnology/rest/agents/removeRunningAgent/" + type + "/" + name);
+				
+				Response response = target.request().delete(); 	
+			
+				if(response.getStatus()!=200)
+				{
+					throw new Exception("PROCESS ABORTED: Cannot delete agent.");
+				}
+
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+				return Response.status(500).build();
+			}
+		}
 		
 		return Response.status(200).build();
 	}
-
-	@Override
-	public String test() 
+	@DELETE
+	@Path("/removeRunningAgent/{type}/{name}")
+	public Response removeRunningAgent(@PathParam("type") String type,@PathParam("name") String name)
 	{
-		String retVal = center.getAlias() + ":\n";
-		Collection<AgentAPI> list = center.getAgents().values();
-		for(AgentAPI a : list)
+		if(!center.removeRunningAgent(type,name))
 		{
-			retVal = retVal + a.getAid().getName() + " - " + a.getAid().getType() + "\n";
+			System.out.println("PROCESS ABORTED: Delation of running agent for node " + center.getAlias() + " failed");
+			return Response.status(500).build();
 		}
-		
-		return retVal;
+		return Response.status(200).build();
 	}
 	
+
 	
+
+
+
+	@GET
+	@Path("/running")
+	@Produces(MediaType.APPLICATION_JSON)
+	public ArrayList<Agent> test() 
+	{
+		return center.getAgents();
+	}
+	
+	@GET
+	@Path("/classes")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Collection<ArrayList<AgentType>> classes()
+	{
+		return center.getTypes().values();
+	}
+
+
+	@GET
+	@Path("/messages")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Performative[] getPerformatives()
+	{
+		return Performative.values();
+	}
+
+
+
+
 
 }

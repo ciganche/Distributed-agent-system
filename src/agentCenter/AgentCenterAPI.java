@@ -3,12 +3,9 @@ package agentCenter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+
 import javax.ejb.Local;
-import javax.ejb.Lock;
-import javax.ejb.LockType;
-import javax.ejb.Schedule;
+
 
 import agent.AID;
 import agent.Agent;
@@ -49,11 +46,11 @@ public interface AgentCenterAPI {
 
 	void setMasteraddress(String masteraddress);
 
-	HashMap<AID, AgentAPI> getAgents();
+	ArrayList<Agent> getAgents();
 
-	ArrayList<AgentType> getTypes();
+	HashMap<String,ArrayList<AgentType>> getTypes();
 
-	void setTypes(ArrayList<AgentType> types);
+	void setTypes(HashMap<String,ArrayList<AgentType>> types);
 
 	void addNode(AgentCenter a);
 
@@ -61,10 +58,18 @@ public interface AgentCenterAPI {
 
 	void deleteNode(Node n);
 
-	void addAgent(AgentAPI newAgent);
+	void addAgent(Agent newAgent);
 
-	void addType(AgentType type);
+	void addType(ArrayList<AgentType> list, String name);
 
-	void setAgents(HashMap<AID, AgentAPI> agents);
+	void setAgents(ArrayList<Agent> agents);
+
+	Agent findAgent(AID aid);
+
+	boolean removeRunningAgent(String type, String name);
+
+	ArrayList<AgentType> getCreatableAgentTypes();
+
+	Node findNodeWithAgentType(AgentType type);
 
 }
