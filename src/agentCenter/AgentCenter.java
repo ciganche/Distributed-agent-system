@@ -513,8 +513,11 @@ public class AgentCenter implements AgentCenterAPI
 	{
 		for(Agent a : agents)
 		{
-			if(a.getAid().equals(aid))
-				return a;
+			if(a.getAid().getName().equals(aid.getName()))
+				if(a.getAid().getHost().getAddress().equals(aid.getHost().getAddress()))
+					if(a.getAid().getType().getName().equals(aid.getType().getName()))
+						if(a.getAid().getType().getModule().equals(aid.getType().getModule()))
+							return a;
 		}
 		return null;
 	}

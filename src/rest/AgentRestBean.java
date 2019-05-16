@@ -1,7 +1,6 @@
 package rest;
 
 
-import java.awt.List;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -34,7 +33,7 @@ import agent.AgentAPI;
 import agent.AgentType;
 import agentCenter.AgentCenterAPI;
 import agentCenter.Node;
-import message.Performative;
+import message.ACLMessage;
 
 @Path("/agents")
 @LocalBean
@@ -187,11 +186,6 @@ public class AgentRestBean implements AgentRestAPI
 		return Response.status(200).build();
 	}
 	
-
-	
-
-
-
 	@GET
 	@Path("/running")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -209,13 +203,6 @@ public class AgentRestBean implements AgentRestAPI
 	}
 
 
-	@GET
-	@Path("/messages")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Performative[] getPerformatives()
-	{
-		return Performative.values();
-	}
 
 
 

@@ -2,46 +2,61 @@ package jms;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
+import javax.jms.JMSException;
 import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.naming.Context;
 import javax.naming.InitialContext;
+import javax.naming.NamingException;
+
 import message.ACLMessage;
 
 public class JMSQueue {
 
-	public JMSQueue(ACLMessage msg) {
-		System.out.println("ACLMessage getting sent to the JMSQueue");
-		try {
-
+	public JMSQueue(ACLMessage message)
+	{
+		try 
+		{
 			Context context = new InitialContext();
-
-			ConnectionFactory cf = (ConnectionFactory) context
-					.lookup("java:jboss/exported/jms/RemoteConnectionFactory");
-
-			Queue queue = (Queue) context.lookup("java:jboss/exported/jms/queue/agentQueue");
+			
+			ConnectionFactory cf = (ConnectionFactory) context.lookup("java:jboss/exported/jms/RemoteConnectionFactory");
+			Queue queue = (Queue) context.lookup("java:jboss/exported/jms/queue/mojQueue");
 			context.close();
+			
+			 Connection connection;
+			try
+			{
+				connection = cf.createConnection("user1", "user1");
+				Session session = connection.createSession();
+				
+				connection.start();
+				ObjectMessage objectMessage = session.createObjectMessage(message);
+				MessageProducer messageProducer = session.createProducer(queue);
+				
+				messageProducer.send(objectMessage);
+				
+				messageProducer.close();
+				session.close();
+				connection.close();
+				
+				
+				System.out.println("APP INFO: Message Sent.");
 
-			Connection connection = cf.createConnection();
-			Session session = connection.createSession();
-
-			connection.start();
-
-			ObjectMessage objMsg = session.createObjectMessage(msg);
-			MessageProducer msgProd = session.createProducer(queue);
+			}
+			catch (JMSException e)
+			{
 			
-			msgProd.send(objMsg);
-			
-			msgProd.close();
-			session.close();
-			connection.close();
-			
-			System.out.println("Thats all folks");
-			
-		} catch (Exception e) {
+				e.printStackTrace();
+			}
+			 
+			 
+		} 
+		catch (NamingException e) 
+		{
 			e.printStackTrace();
 		}
+		
 	}
 }

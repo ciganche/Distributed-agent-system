@@ -46,7 +46,7 @@ public class Agent implements AgentAPI
 	@Override
 	public void handleMessage(ACLMessage message) 
 	{
-		// TODO Auto-generated method stub	
+		System.out.println("APP INFO: Parent agent class handling message.");	
 	}
 
 }

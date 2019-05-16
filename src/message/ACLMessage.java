@@ -43,6 +43,24 @@ public class ACLMessage implements Serializable
 		
 	}
 
+	public ACLMessage(ACLMessage copy, AID aid)
+	{
+		this.setSender(copy.getSender());
+		this.setReceivers(new AID[] {aid});
+		this.setContent(copy.getContent());
+		this.setContentObj(copy.getContentObj());
+		this.setConversationID(copy.getConversationID());
+		this.setPerformative(copy.getPerformative());
+		this.setProtocol(copy.getProtocol());
+		this.setEncoding(copy.getEncoding());
+		this.setReplyTo(copy.getReplyTo());
+		this.setUserArgs(copy.getUserArgs());
+		this.setLanguage(copy.getLanguage());
+		this.setOntology(copy.getOntology());
+		this.setInReplyTo(copy.getInReplyTo());
+		this.setReplyBy(copy.getReplyBy());
+		this.setReplyWith(copy.getReplyWith());	
+	}
 
 	public Performative getPerformative() {
 		return performative;

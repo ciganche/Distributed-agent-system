@@ -15,11 +15,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import agent.AID;
 import agent.Agent;
-import agent.AgentAPI;
 import agent.AgentType;
-import message.Performative;
+import message.ACLMessage;
 
 
 @Remote
@@ -53,11 +51,6 @@ public interface AgentRestAPI
 	@DELETE
 	@Path("/removeRunningAgent/{type}/{name}")
 	public Response removeRunningAgent(@PathParam("type") String type,@PathParam("name") String name);
-	
-	@GET
-	@Path("/messages")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Performative[] getPerformatives();
 
 	
 }
