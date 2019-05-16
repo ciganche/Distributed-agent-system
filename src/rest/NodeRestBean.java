@@ -1,6 +1,8 @@
 package rest;
 
 
+import java.util.ArrayList;
+
 import javax.ejb.AccessTimeout;
 import javax.ejb.ConcurrencyManagement;
 import javax.ejb.EJB;
@@ -18,6 +20,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.jboss.resteasy.client.jaxrs.ResteasyClient;
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
+import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
+
+import agent.Agent;
 import agentCenter.AgentCenter;
 import agentCenter.AgentCenterAPI;
 import agentCenter.Node;
@@ -73,10 +80,10 @@ public class NodeRestBean implements NodeRestAPI{
 				
 				return Response.status(404).build();
 			}
-			
 			center.deleteFromAllNodes(toBeDeleted);
 			center.deleteNode(toBeDeleted);
 			
+
 			return Response.status(200).build();
 
 		}
@@ -91,6 +98,7 @@ public class NodeRestBean implements NodeRestAPI{
 
 			}
 			center.deleteNode(toBeDeleted);
+			
 			return Response.status(200).build();
 
 		}
@@ -101,7 +109,6 @@ public class NodeRestBean implements NodeRestAPI{
 	@Path("/node")
 	public Response isAlive()
 	{
-		System.out.println("APP INFO: Alive");
 		return Response.status(200).build();
 	}
 	

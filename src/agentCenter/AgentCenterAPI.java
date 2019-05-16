@@ -72,4 +72,6 @@ public interface AgentCenterAPI {
 
 	Node findNodeWithAgentType(AgentType type);
 
+	void removeNodeTypes(String alias);
+
 }

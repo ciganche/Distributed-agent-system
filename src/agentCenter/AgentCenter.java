@@ -116,6 +116,17 @@ public class AgentCenter implements AgentCenterAPI
 		if(!alias.equals("master"))
 		{
 			System.out.println("APP INFO: PreDestroy");
+			
+			//TODO: stop all agents on the node
+			for(Agent agent : agents)
+			{
+				if(agent.getAid().getHost().getAddress().equals(address))
+				{
+					agent.stop();
+				}
+			}
+			
+			//remove the existance of the node
 			ResteasyWebTarget target = client.target("http://" + masteraddress +"/AgentTechnology/rest/agentCenter/node/" + alias);
 			Response response = target.request().delete();
 			System.out.println("APP INFO: Non-master node " + alias + " is shutting down.");
@@ -152,6 +163,9 @@ public class AgentCenter implements AgentCenterAPI
 	@Schedule(hour="*", minute="*", second="*/25", persistent = false)
 	public synchronized void heartbratProtocol()
 	{
+		if(!alias.equals("master"))
+			return; 
+		
 		for(Node n : this.getNodes())
 		{
 			if(n.getAlias().equals(this.alias))
@@ -187,8 +201,9 @@ public class AgentCenter implements AgentCenterAPI
 					else
 					{
 						Node toBeDeleted = findNode(n.getAlias());
+						
 						deleteFromAllNodes(toBeDeleted);
-						deleteNode(toBeDeleted);
+						deleteNode(toBeDeleted);					
 						System.out.println("APP INFO: Deleted from master node.");
 					}
 				}
@@ -307,7 +322,7 @@ public class AgentCenter implements AgentCenterAPI
 	 */
 	@Override
 	public String getAlias() {
-		return alias;
+		return new String(alias);
 	}
 
 
@@ -326,7 +341,7 @@ public class AgentCenter implements AgentCenterAPI
 	 */
 	@Override
 	public String getAddress() {
-		return address;
+		return new String(address);
 	}
 
 
@@ -373,7 +388,7 @@ public class AgentCenter implements AgentCenterAPI
 	 */
 	@Override
 	public String getMasteraddress() {
-		return masteraddress;
+		return new String(masteraddress);
 	}
 
 
@@ -466,6 +481,19 @@ public class AgentCenter implements AgentCenterAPI
 	@Lock(LockType.WRITE)
 	public void deleteNode(Node n)
 	{
+		//remove agent types from hashmap
+		removeNodeTypes(n.getAlias());
+		
+		//remove agents running on the server being shut down from the running agent list
+		for(Agent agent : new ArrayList<Agent>(agents))
+		{
+			if(agent.getAid().getHost().getAddress().equals(n.getAddress()))
+			{
+				agents.remove(agent);
+			}
+		}
+		
+		//remove the node finally
 		nodes.remove(n);	
 	}
 
@@ -583,6 +611,14 @@ public class AgentCenter implements AgentCenterAPI
 		
 		Node retVal = findNode(nodeNames.get(theIndex));
 		return retVal;
+	}
+	
+	@Override
+	@Lock(LockType.WRITE)
+	public void removeNodeTypes(String a)
+	{
+		types.remove(a);
+		System.out.println("* * * BRISANJE TIPOVA: " + a + " na cvoru: " + this.alias);
 	}
 	
 	

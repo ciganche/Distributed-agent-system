@@ -50,9 +50,23 @@ public class AgentRestBean implements AgentRestAPI
 	@Path("/running/{type}/{name}")
 	public Response startAgents(@PathParam("type") String type,@PathParam("name") String name) 
 	{
+		//TODO: neko soft resenje za ovo?
+		ArrayList<AgentType> temp = center.getTypes().get(center.getAlias());
+		boolean found = false;
+		for(AgentType t : temp)
+		{
+			if(t.getName().equals(type))
+			{
+				found = true;
+			}
+		}
 		
-		//TODO: napraviti zastiu od nepoznatog tipa u urlu
-		
+		if(!found)
+		{
+			System.out.println("PROCESS ABORTED: Node: " + center.getAlias() + " is not authorized to build an agent type: " + type);
+			return Response.status(500).build();
+		}
+			
 		try 
 		{
 			Context context = new InitialContext();
