@@ -10,6 +10,7 @@ import agent.Agent;
 import jms.JMSQueue;
 import message.ACLMessage;
 import message.Performative;
+import webSocketLogger.LoggerUtil;
 
 @Stateful
 public class Participant extends Agent implements Serializable
@@ -33,7 +34,7 @@ public class Participant extends Agent implements Serializable
 			break;
 			
 			default:
-				System.out.println("APP INFO: Not yet implemented.");
+				LoggerUtil.log("Performative not supported.");
 		}
 	}
 
@@ -51,7 +52,7 @@ public class Participant extends Agent implements Serializable
 
 	private void handleRejection(ACLMessage message)
 	{
-		System.out.println("APP INFO: Agent: " + this.getAid().getName() + " - " + this.getAid().getType().getName() + " ok:(");
+		LoggerUtil.log("Agent: [" + this.getAid().getName() + " - " + this.getAid().getType().getName() + "] is refused - ok:(");
 	}
 
 	private void handleCallForProposal(ACLMessage message)

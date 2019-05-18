@@ -1,4 +1,4 @@
-package rest;
+package rest.agentRest;
 
 
 import java.util.ArrayList;
@@ -33,6 +33,7 @@ import agent.AgentAPI;
 import agent.AgentType;
 import agentCenter.AgentCenterAPI;
 import agentCenter.Node;
+import webSocketLogger.LoggerUtil;
 
 @Path("/agents")
 @LocalBean
@@ -66,12 +67,12 @@ public class AgentRestBean implements AgentRestAPI
 			
 			if(theOne==null)
 			{
-				System.out.println("PROCESS ABORTED: The system does not suppert this agent type.");
+				LoggerUtil.log("PROCESS ABORTED: The system does not suppert this agent type.");
 				return Response.status(404).build();
 			}
 			else
 			{
-				System.out.println("APP INFO: Agent: " + name + " - " + type + " will be created on node: " + theOne.getAlias());
+				LoggerUtil.log("Agent: [" + name + " - " + type + "] will be created on node: {" + theOne.getAlias() + "}");
 				ResteasyClient client = new ResteasyClientBuilder().build();
 		        ResteasyWebTarget target = client.target("http://" + theOne.getAddress() +"/AgentTechnology/rest/agents/running/" + type + "/" + name);
 				Response response = target.request().post(null);
@@ -95,7 +96,7 @@ public class AgentRestBean implements AgentRestAPI
 			center.addAgent(newAgent);
 			context.close();
 			
-			System.out.println("APP INFO: Agent started: " + newAgent.getAid().getName() + " - " + newAgent.getAid().getType());
+			LoggerUtil.log("Agent started: [" + newAgent.getAid().getName() + " - " + newAgent.getAid().getType().getName() + "]");
 			
 			
 			//inform all other nods that a agent is active
@@ -159,7 +160,7 @@ public class AgentRestBean implements AgentRestAPI
 		
 		if(!center.removeRunningAgent(type,name))
 		{
-			System.out.println("PROCESS ABORTED: Delation of running agent for node " + center.getAlias() + " failed");
+			LoggerUtil.log("Delation of running agent for node {" + center.getAlias() + "} failed");
 			return Response.status(500).build();
 		}
 		
@@ -184,6 +185,7 @@ public class AgentRestBean implements AgentRestAPI
 			}
 			catch(Exception e)
 			{
+				LoggerUtil.log("PROCESS ABORTED: Cannot delete agent.");
 				e.printStackTrace();
 				return Response.status(500).build();
 			}
@@ -197,7 +199,7 @@ public class AgentRestBean implements AgentRestAPI
 	{
 		if(!center.removeRunningAgent(type,name))
 		{
-			System.out.println("PROCESS ABORTED: Delation of running agent for node " + center.getAlias() + " failed");
+			LoggerUtil.log("Delation of running agent for node {" + center.getAlias() + "} failed");
 			return Response.status(500).build();
 		}
 		return Response.status(200).build();

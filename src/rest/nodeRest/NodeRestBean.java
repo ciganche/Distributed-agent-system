@@ -1,4 +1,4 @@
-package rest;
+package rest.nodeRest;
 
 
 import java.util.ArrayList;
@@ -28,6 +28,7 @@ import agent.Agent;
 import agentCenter.AgentCenter;
 import agentCenter.AgentCenterAPI;
 import agentCenter.Node;
+import webSocketLogger.LoggerUtil;
 
 @Path("/agentCenter")
 @LocalBean
@@ -76,7 +77,7 @@ public class NodeRestBean implements NodeRestAPI{
 			Node toBeDeleted = center.findNode(alias);
 			if(toBeDeleted == null)
 			{
-				System.out.println("PROCESS ABORTED: Node " + alias + " is unregistered at node " + center.getAlias());
+				LoggerUtil.log("PROCESS ABORTED: Node {" + alias + "} is unregistered at node {" + center.getAlias() + "}.");
 				
 				return Response.status(404).build();
 			}
@@ -92,7 +93,7 @@ public class NodeRestBean implements NodeRestAPI{
 			Node toBeDeleted = center.findNode(alias);
 			if(toBeDeleted == null)
 			{
-				System.out.println("PROCESS ABORTED: Node " + alias + " is unregistered" + center.getAlias());
+				LoggerUtil.log("PROCESS ABORTED: Node {" + alias + "} is unregistered at node {" + center.getAlias() + "}.");
 				
 				return Response.status(404).build();
 

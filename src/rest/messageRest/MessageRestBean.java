@@ -1,4 +1,4 @@
-package rest;
+package rest.messageRest;
 
 import javax.ejb.AccessTimeout;
 import javax.ejb.EJB;
@@ -16,6 +16,7 @@ import agentCenter.AgentCenterAPI;
 import jms.JMSQueue;
 import message.ACLMessage;
 import message.Performative;
+import webSocketLogger.LoggerUtil;
 
 @Path("/messages")
 @LocalBean
@@ -44,7 +45,7 @@ public class MessageRestBean
 		
 		if(center.getAgents().size() == 0)
 		{
-			System.out.println("PROCESS ABORTED: There are no running agents" );
+			LoggerUtil.log("PROCESS ABORTED: There are no running agents" );
 		}
 		
 		AID randomReciver = center.getAgents().get(0).getAid();

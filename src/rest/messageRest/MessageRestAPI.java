@@ -1,4 +1,4 @@
-package rest;
+package rest.messageRest;
 
 import javax.ejb.Remote;
 import javax.ws.rs.Consumes;

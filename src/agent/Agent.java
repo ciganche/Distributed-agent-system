@@ -3,6 +3,7 @@ package agent;
 import javax.ejb.Stateful;
 
 import message.ACLMessage;
+import webSocketLogger.LoggerUtil;
 
 @Stateful
 public class Agent implements AgentAPI
@@ -34,7 +35,7 @@ public class Agent implements AgentAPI
 	@Override
 	public void stop() 
 	{
-		System.out.println("APP INFO: Stopping running agent: " + aid.getName() + ", from it's host: " + aid.getHost().getAlias() + " - " + aid.getHost().getAddress());
+		LoggerUtil.log("Stopping running agent: " + aid.getName() + ", from it's host: " + aid.getHost().getAlias() + " - " + aid.getHost().getAddress());
 	}
 
 	@Override
@@ -51,7 +52,7 @@ public class Agent implements AgentAPI
 	@Override
 	public void handleMessage(ACLMessage message) 
 	{
-		System.out.println("APP INFO: Parent agent class handling message.");	
+		LoggerUtil.log("Parent agent class handling message.");
 	}
 
 }

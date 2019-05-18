@@ -31,7 +31,8 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 
 import config.ReadConfigUtil;
-import rest.NodeRestAPI;
+import rest.nodeRest.NodeRestAPI;
+import webSocketLogger.LoggerUtil;
 import agent.Agent;
 import agent.AgentAPI;
 import agent.AID;
@@ -90,7 +91,7 @@ public class AgentCenter implements AgentCenterAPI
 			 
 			 types.put("master", getCreatableAgentTypes());
 			 
-			 System.out.println("APP INFO: The master node has registered.");
+			 LoggerUtil.log("The {master} node has registered.");
 
 		 }
 			 
@@ -99,7 +100,7 @@ public class AgentCenter implements AgentCenterAPI
 		 {
 			 masteraddress = params.get(2);
 			 registerAtMasterNode();
-			 System.out.println("APP INFO: A non-master node has registered:" + alias + ".");
+			 LoggerUtil.log("A non-master node has registered: {" + alias + "}.");
 
 		 }
 		 
@@ -152,7 +153,7 @@ public class AgentCenter implements AgentCenterAPI
         }
         catch(Exception e)
         {
-        	System.out.println("PROCESS ABORTED: The new agent center cannot connect to the cluster.");
+        	LoggerUtil.log("PROCESS ABORTED: The new agent center cannot connect to the cluster.");
         }
     }
 	
@@ -191,7 +192,7 @@ public class AgentCenter implements AgentCenterAPI
 						System.out.println("APP INFO: Salje se na: " + masteraddress);
 						ResteasyWebTarget target2 = client.target("http://" + masteraddress +"/AgentTechnology/rest/agentCenter/node/" + n.getAlias());
 						Response response = target2.request().delete();
-						System.out.println("APP INFO: Node " + n.getAlias() + " is being shut down because it is not responding according to the heartbeat protocol.");				
+						LoggerUtil.log("Node {" + n.getAlias() + "} is being shut down because it is not responding according to the heartbeat protocol.");				
 						System.out.println("APP INFO: Delation returned status: " + response.getStatus());
 						
 						
@@ -228,7 +229,7 @@ public class AgentCenter implements AgentCenterAPI
 	{
 		if(!alias.equals("master"))
 		{
-        	System.out.println("PROCESS ABORTED: Only the master node can inform other nodes about a new member.");
+			LoggerUtil.log("PROCESS ABORTED: Only the master node can inform other nodes about a new member.");
 			return;
 		}
 		

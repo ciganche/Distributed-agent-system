@@ -1,4 +1,4 @@
-package rest;
+package rest.agentRest;
 
 import java.util.ArrayList;
 import java.util.Collection;

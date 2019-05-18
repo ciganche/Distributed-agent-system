@@ -8,12 +8,13 @@ import javax.ejb.Stateful;
 
 import agent.AID;
 import agent.Agent;
-
 import jms.JMSQueue;
 import message.ACLMessage;
 import message.Performative;
 import utils.ContractNetValueHolder;
+import webSocketLogger.LoggerUtil;
 
+@SuppressWarnings("serial")
 @Stateful
 public class Initiator extends Agent implements Serializable	
 {
@@ -27,13 +28,18 @@ public class Initiator extends Agent implements Serializable
 	public void handleMessage(ACLMessage message)
 	{	
 		
-		nap();
+		//nap();
 		
 		//client initiated - sends call for proporsal to all running agents
 		switch(message.getPerformative())
 		{
-			case REQUEST: //cliend initiated, sends cpf to all running agents
+			case REQUEST: //client initiated, sends cpf to all running participant agents
 				handleRequest(message);
+				waitForParticipans(message, 5);
+			break;
+			
+			case RESUME:
+				chooseAgent(message);
 			break;
 			
 			case REFUSE:
@@ -45,18 +51,20 @@ public class Initiator extends Agent implements Serializable
 			break;
 			
 			case FAILURE:
-				System.out.println("PROCESS ABORTED: Choosen agent: " + message.getSender().getName() + " - " + message.getSender().getType().getName() + " failed to execute the task.");
+				LoggerUtil.log("PROCESS ABORTED: Choosen agent: [" + message.getSender().getName() + " - " + message.getSender().getType().getName() + "] failed to execute the task.");
 			break;
 			
 			case INFORM:
-				System.out.println("APP INFO:  Choosen agent: " + message.getSender().getName() + " - " + message.getSender().getType().getName() + " successfully executed the task. Returned: " + message.getContent());
+				LoggerUtil.log("Choosen agent: [" + message.getSender().getName() + " - " + message.getSender().getType().getName() + "] successfully executed the task. Returned: " + message.getContent());
 			break;
 			
 			default:
-				System.out.println("APP INFO: Not yet implemented.");
+				LoggerUtil.log("Performative not supported.");
 		}
 		
 	}
+
+
 
 	private void handlePropose(ACLMessage message)
 	{
@@ -64,34 +72,49 @@ public class Initiator extends Agent implements Serializable
 		{
 			int offer = (int) message.getContentObj();
 			addOfferToSession(message.getConversationID(),message.getSender(),offer);
-			System.out.println("APP INFO: Agent: " + message.getSender().getName() + " - " + message.getSender().getType().getName() + " offered: " + offer );
+			LoggerUtil.log("Agent: [" + message.getSender().getName() + " - " + message.getSender().getType().getName() + "] offered: " + offer );
 		}
 		catch(Exception e)
 		{
-			System.out.println("OFFER CANCELED: Agent: " + message.getSender().getName() + " - " + message.getSender().getType().getName() + " sends an invalid value.");
+			LoggerUtil.log("OFFER CANCELED: Agent: [" + message.getSender().getName() + " - " + message.getSender().getType().getName() + "] sends an invalid value.");
 			addOfferToSession(message.getConversationID(),message.getSender(),-1);
 		}
-		
-		if(sessions.get(message.getConversationID()).getOffers().size() == sentCallsNumber.get(message.getConversationID()))
-		{
-			chooseAgent(message);
-		}
-		
 	}
-
+	
+	
 	private void handleRefuse(ACLMessage message) 
 	{
-		System.out.println("APP INFO: Agent: " + message.getSender().getName() + " - " + message.getSender().getType().getName() + "  refused call for proposal." );
-		//if refused - value is -1
-		addOfferToSession(message.getConversationID(),message.getSender(),-1);
-		
-		if(sessions.get(message.getConversationID()).getOffers().size() == sentCallsNumber.get(message.getConversationID()))
-		{
-			chooseAgent(message);
-		}
+		LoggerUtil.log("Agent: [" + message.getSender().getName() + " - " + message.getSender().getType().getName() + "]  refused call for proposal." );
 	}
-
-
+	
+	private void waitForParticipans(ACLMessage message, int sleepSeconds)
+	{		
+		LoggerUtil.log("Agent: [" + this.getAid().getName() + " - Initiator] waits for proposals to collect for: " + sleepSeconds);
+		
+		ACLMessage pause = new ACLMessage();
+		pause.setReceivers(new AID[]{this.getAid()});
+		pause.setConversationID(message.getConversationID());
+		pause.setSender(this.getAid());
+		pause.setPerformative(Performative.RESUME);	
+		Thread t = new Thread()
+		{
+	        @Override
+	        public void run() 
+	        {
+	        	 try 
+	        	 {
+					Thread.sleep(sleepSeconds*1000);
+					new JMSQueue(pause);
+	        	 }
+	        	 catch (InterruptedException e)
+	        	 {
+					e.printStackTrace();
+	        	 }
+	        }
+		};
+		t.start();		
+	}
+	
 	private void handleRequest(ACLMessage message)
 	{
 		
@@ -106,6 +129,8 @@ public class Initiator extends Agent implements Serializable
 		
 		//get all PaAIDcipant id's 
 		ArrayList<AID> receivers = new ArrayList<AID>();
+		
+		@SuppressWarnings("unchecked")
 		ArrayList<Agent> arrayList = (ArrayList<Agent>) message.getContentObj();
 		for(Agent a : arrayList)
 		{
@@ -115,7 +140,7 @@ public class Initiator extends Agent implements Serializable
 		
 		if(receivers.size() == 0)
 		{
-			System.out.println("PROCESS ABORTED: No running Participant agents found.");
+			LoggerUtil.log("PROCESS ABORTED: No running Participant agents found.");
 			return;
 		}
 		
@@ -137,15 +162,17 @@ public class Initiator extends Agent implements Serializable
 	
 	private void chooseAgent(ACLMessage message) 
 	{
+		System.out.println("Biram agenta");
+		
 		AID acceptedAgent = getBestOffer(message.getConversationID());
 		
 		if(acceptedAgent == null)
 		{
-			System.out.println("APP INFO: All agents refused to propose.");
+			LoggerUtil.log("All agents refused to propose.");
 			return;
 		}
 		
-		System.out.println("APP INFO: The choosen agent: " + acceptedAgent.getName() + " - " + acceptedAgent.getType().getName());
+		LoggerUtil.log("The choosen agent: [" + acceptedAgent.getName() + " - " + acceptedAgent.getType().getName() + "]");
 		ArrayList<AID> agents = new ArrayList<AID>(sessions.get(message.getConversationID()).getOffers().keySet());
 
 		for(AID agent: agents)
