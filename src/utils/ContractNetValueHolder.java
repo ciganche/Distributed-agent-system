@@ -1,10 +1,11 @@
 package utils;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
 import agent.AID;
 
-public class ContractNetValueHolder 
+public class ContractNetValueHolder implements Serializable
 {
 	
 	public ContractNetValueHolder() 

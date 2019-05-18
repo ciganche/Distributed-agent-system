@@ -70,7 +70,7 @@ public interface AgentCenterAPI {
 
 	ArrayList<AgentType> getCreatableAgentTypes();
 
-	Node findNodeWithAgentType(AgentType type);
+	Node findNodeWithAgentType(String type);
 
 	void removeNodeTypes(String alias);
 

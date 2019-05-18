@@ -1,5 +1,6 @@
 package instantiableAgents;
 
+import java.io.Serializable;
 import java.util.Random;
 
 import javax.ejb.Stateful;
@@ -11,7 +12,7 @@ import message.ACLMessage;
 import message.Performative;
 
 @Stateful
-public class Participant extends Agent
+public class Participant extends Agent implements Serializable
 {
 	
 	@Override

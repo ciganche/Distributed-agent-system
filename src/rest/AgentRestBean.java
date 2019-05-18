@@ -33,7 +33,6 @@ import agent.AgentAPI;
 import agent.AgentType;
 import agentCenter.AgentCenterAPI;
 import agentCenter.Node;
-import message.ACLMessage;
 
 @Path("/agents")
 @LocalBean
@@ -49,7 +48,7 @@ public class AgentRestBean implements AgentRestAPI
 	@Path("/running/{type}/{name}")
 	public Response startAgents(@PathParam("type") String type,@PathParam("name") String name) 
 	{
-		//TODO: neko soft resenje za ovo?
+		//try to create locally
 		ArrayList<AgentType> temp = center.getTypes().get(center.getAlias());
 		boolean found = false;
 		for(AgentType t : temp)
@@ -60,11 +59,29 @@ public class AgentRestBean implements AgentRestAPI
 			}
 		}
 		
+		//if not found - search on another node
 		if(!found)
 		{
-			System.out.println("PROCESS ABORTED: Node: " + center.getAlias() + " is not authorized to build an agent type: " + type);
-			return Response.status(500).build();
+			Node theOne = center.findNodeWithAgentType(type);
+			
+			if(theOne==null)
+			{
+				System.out.println("PROCESS ABORTED: The system does not suppert this agent type.");
+				return Response.status(404).build();
+			}
+			else
+			{
+				System.out.println("APP INFO: Agent: " + name + " - " + type + " will be created on node: " + theOne.getAlias());
+				ResteasyClient client = new ResteasyClientBuilder().build();
+		        ResteasyWebTarget target = client.target("http://" + theOne.getAddress() +"/AgentTechnology/rest/agents/running/" + type + "/" + name);
+				Response response = target.request().post(null);
+				
+				return response;
+			}
 		}
+		
+		
+		
 			
 		try 
 		{

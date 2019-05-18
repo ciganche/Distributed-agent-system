@@ -1,5 +1,6 @@
 package instantiableAgents;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -14,7 +15,7 @@ import message.Performative;
 import utils.ContractNetValueHolder;
 
 @Stateful
-public class Initiator extends Agent
+public class Initiator extends Agent implements Serializable	
 {
 	//TODO: initiatoru pre gasenja na sve ponude da odg -1
 	

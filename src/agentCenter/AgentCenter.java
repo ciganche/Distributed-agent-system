@@ -600,26 +600,24 @@ public class AgentCenter implements AgentCenterAPI
 	
 	//returns the first node which can build an agentType
 	@Override
-	public Node findNodeWithAgentType(AgentType type)
+	public Node findNodeWithAgentType(String type)
 	{
-		ArrayList<ArrayList<AgentType>> values = (ArrayList<ArrayList<AgentType>>) types.values();
+		ArrayList<ArrayList<AgentType>> values = new ArrayList<ArrayList<AgentType>>(types.values());
 		ArrayList<String> nodeNames = new ArrayList<String>(types.keySet());
-		
-		int theIndex = -1;
-		
+				
 		for(int i = 0 ; i < values.size() ; i ++ )
 		{
-			if(values.get(i).contains(type))
+			ArrayList<AgentType> temp = values.get(i);
+			for(AgentType at : temp)
 			{
-				theIndex = i;
-				break;
+				if(at.getName().equals(type))
+				{
+					return findNode(nodeNames.get(i));
+				}
 			}
 		}
-		if(theIndex == -1)
-			return null;
 		
-		Node retVal = findNode(nodeNames.get(theIndex));
-		return retVal;
+		return null;
 	}
 	
 	@Override
