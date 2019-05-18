@@ -1,5 +1,6 @@
 package jms;
 
+import javax.ejb.AccessTimeout;
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.EJB;
 import javax.ejb.MessageDriven;
@@ -18,9 +19,11 @@ import agent.AID;
 import agent.Agent;
 import agentCenter.AgentCenterAPI;
 import message.ACLMessage;
+import message.Performative;
 
 
 @MessageDriven(activationConfig = {@ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),@ActivationConfigProperty(propertyName = "destination", propertyValue = "java:jboss/exported/jms/queue/mojQueue") })
+@AccessTimeout(-1)
 public class JMSQueueListener implements MessageListener
 {
 
@@ -47,7 +50,7 @@ public class JMSQueueListener implements MessageListener
 				{		
 					try
 					{
-						
+						System.out.println("* * * " + reciverAID.getName() + " - " + reciverAID.getHost().getAddress() + " - " + reciverAID.getType().getName() + " - " + reciverAID.getType().getModule());
 						Agent a = center.findAgent(reciverAID);
 						
 						
@@ -56,13 +59,18 @@ public class JMSQueueListener implements MessageListener
 							throw new Exception("PROCESS ABORTED: Cannot access agent: " + reciverAID.getName());
 						}
 						
+						if(a.getAid().getType().getName().equals("Initiator") && (message.getPerformative() == Performative.REQUEST))
+						{
+							message.setContentObj(center.getAgents());
+						}
+						
 						a.handleMessage(message);
 						System.out.println("APP INFO: Message handeled on: " + center.getAlias());
 						
 					}
 					catch(Exception e)
 					{
-						e.printStackTrace();
+						System.out.println("PROCESS ABORTED: Agent " + reciverAID.getName() + " is not supported.");
 					}
 				}
 				else //the message is for an agent running on another node

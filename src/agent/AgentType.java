@@ -17,6 +17,11 @@ public class AgentType implements Serializable
 	{
 	}
 
+	public AgentType(AgentType type) {
+		name = type.getName();
+		module = type.getModule();
+	}
+
 	public String getName() 
 	{
 		return name;

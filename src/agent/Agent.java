@@ -20,6 +20,11 @@ public class Agent implements AgentAPI
 		this.aid = aid;
 	}
 
+	public Agent(Agent a)
+	{
+		this.aid = new AID(a.getAid());
+	}
+
 	@Override
 	public void init(AID aid) 
 	{	

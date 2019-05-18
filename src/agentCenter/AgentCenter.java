@@ -409,7 +409,14 @@ public class AgentCenter implements AgentCenterAPI
 	@Override
 	public ArrayList<Agent> getAgents()
 	{
-		return agents;
+		ArrayList<Agent> retVal = new ArrayList<Agent>();
+		
+		for(Agent a : agents)
+		{
+			retVal.add(new Agent(a));
+		}
+		
+		return retVal;
 	}
 
 	/* (non-Javadoc)
@@ -516,7 +523,6 @@ public class AgentCenter implements AgentCenterAPI
 			if(a.getAid().getName().equals(aid.getName()))
 				if(a.getAid().getHost().getAddress().equals(aid.getHost().getAddress()))
 					if(a.getAid().getType().getName().equals(aid.getType().getName()))
-						if(a.getAid().getType().getModule().equals(aid.getType().getModule()))
 							return a;
 		}
 		return null;

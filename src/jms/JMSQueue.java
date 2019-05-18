@@ -41,9 +41,6 @@ public class JMSQueue {
 				session.close();
 				connection.close();
 				
-				
-				System.out.println("APP INFO: Message Sent.");
-
 			}
 			catch (JMSException e)
 			{
