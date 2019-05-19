@@ -27,9 +27,6 @@ public class Initiator extends Agent implements Serializable
 	@Override
 	public void handleMessage(ACLMessage message)
 	{	
-		
-		//nap();
-		
 		//client initiated - sends call for proporsal to all running agents
 		switch(message.getPerformative())
 		{
@@ -235,22 +232,6 @@ public class Initiator extends Agent implements Serializable
 		return agents.get(bestOfferIndex);
 	}
 	
-	
-	public void nap()
-	{
-		new Thread()
-		{
-	        @Override
-	        public void run() {
-	        	
-	        	 try {
-					Thread.sleep(3000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-	        }
-		};
-	}
+
 	
 }

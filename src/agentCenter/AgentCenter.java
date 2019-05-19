@@ -203,6 +203,8 @@ public class AgentCenter implements AgentCenterAPI
 					}
 					else
 					{
+						
+						LoggerUtil.log("Node {" + n.getAlias() + "} is not responding to the heartbeat protocol.");
 						Node toBeDeleted = findNode(n.getAlias());
 						
 						deleteFromAllNodes(toBeDeleted);
@@ -463,6 +465,7 @@ public class AgentCenter implements AgentCenterAPI
 	public void addNode(AgentCenter a)
 	{
 		nodes.add(new Node(a.alias,a.address));
+		LoggerUtil.log("Node {" + a.getAlias() + "} joined the cluster.");
 	}
 
 
@@ -508,6 +511,7 @@ public class AgentCenter implements AgentCenterAPI
 		
 		RefreshAgentClasses.refresh(types.values());
 		RefreshRunningAgents.refresh(getAgents());
+		LoggerUtil.log("Node {" + n.getAlias() +"} was removed from the cluster." );
 	}
 
 
@@ -519,6 +523,8 @@ public class AgentCenter implements AgentCenterAPI
 	public void addAgent(Agent agent)
 	{
 		agents.add(agent);
+		LoggerUtil.log("Agent [" + agent.getAid().getName() + " - " + agent.getAid().getType().getName() + "] was started at {" + agent.getAid().getHost().getAlias() + "}.");
+		RefreshRunningAgents.refresh(getAgents());
 	}
 	
 	@Override
@@ -557,8 +563,13 @@ public class AgentCenter implements AgentCenterAPI
 		if(temp!=null)
 		{
 			agents.remove(temp);
+			RefreshRunningAgents.refresh(getAgents());
+			LoggerUtil.log("Agent [" + temp.getAid().getName() + " - " + temp.getAid().getType().getName() + "] was removed from {" + temp.getAid().getHost().getAlias() + "}.");
 			return true;
+			
 		}
+		
+		
 		
 		return false;
 	}
@@ -570,6 +581,7 @@ public class AgentCenter implements AgentCenterAPI
 	public void addType(ArrayList<AgentType> list, String name)
 	{
 		types.put(name, list);
+		RefreshAgentClasses.refresh(types.values());
 	}
 	
 
@@ -632,6 +644,8 @@ public class AgentCenter implements AgentCenterAPI
 	{
 		types.remove(a);
 		System.out.println("* * * BRISANJE TIPOVA: " + a + " na cvoru: " + this.alias);
+		RefreshAgentClasses.refresh(types.values());
+
 	}
 	
 	

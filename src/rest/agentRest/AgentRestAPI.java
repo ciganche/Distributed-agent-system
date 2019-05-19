@@ -1,8 +1,5 @@
 package rest.agentRest;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import javax.ejb.Remote;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -16,8 +13,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import agent.Agent;
-import agent.AgentType;
-import message.ACLMessage;
+import webSocket.dto.AgentClassesDTO;
+import webSocket.dto.RunningAgentsDTO;
 
 
 @Remote
@@ -33,14 +30,14 @@ public interface AgentRestAPI
 	public Response addRunningAgent(Agent newAgent);
 	
 	@GET
-	@Path("/test")
+	@Path("/running")
 	@Produces(MediaType.APPLICATION_JSON)
-	public ArrayList<Agent> test();
+	public RunningAgentsDTO test();
 	
 	@GET
 	@Path("/classes")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Collection<ArrayList<AgentType>> classes();
+	public AgentClassesDTO classes();
 	
 	@DELETE
 	@Path("/running")

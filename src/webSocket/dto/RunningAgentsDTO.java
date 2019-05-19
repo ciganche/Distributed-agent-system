@@ -7,7 +7,7 @@ import agent.Agent;
 
 public class RunningAgentsDTO 
 {
-	private ArrayList<AID> list = new ArrayList<AID>();
+	private ArrayList<Agent> list = new ArrayList<Agent>();
 
 	
 	public RunningAgentsDTO()
@@ -20,16 +20,16 @@ public class RunningAgentsDTO
 		super();
 		for(Agent a : agentList)
 		{
-			list.add(a.getAid());
+			list.add(a);
 		}
 	}
 
-	public ArrayList<AID> getList()
+	public ArrayList<Agent> getList()
 	{
 		return list;
 	}
 
-	public void setList(ArrayList<AID> list)
+	public void setList(ArrayList<Agent> list)
 	{
 		this.list = list;
 	}

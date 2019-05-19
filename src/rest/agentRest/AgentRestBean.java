@@ -2,7 +2,6 @@ package rest.agentRest;
 
 
 import java.util.ArrayList;
-import java.util.Collection;
 
 import javax.ejb.AccessTimeout;
 import javax.ejb.EJB;
@@ -34,6 +33,8 @@ import agent.AgentType;
 import agentCenter.AgentCenterAPI;
 import agentCenter.Node;
 import webSocket.LoggerUtil;
+import webSocket.dto.AgentClassesDTO;
+import webSocket.dto.RunningAgentsDTO;
 
 @Path("/agents")
 @LocalBean
@@ -208,17 +209,17 @@ public class AgentRestBean implements AgentRestAPI
 	@GET
 	@Path("/running")
 	@Produces(MediaType.APPLICATION_JSON)
-	public ArrayList<Agent> test() 
+	public RunningAgentsDTO test() 
 	{
-		return center.getAgents();
+		return new RunningAgentsDTO(center.getAgents());
 	}
 	
 	@GET
 	@Path("/classes")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Collection<ArrayList<AgentType>> classes()
+	public AgentClassesDTO classes()
 	{
-		return center.getTypes().values();
+		return new AgentClassesDTO(center.getTypes().values());
 	}
 
 

@@ -20,6 +20,7 @@ import agent.Agent;
 import agentCenter.AgentCenterAPI;
 import message.ACLMessage;
 import message.Performative;
+import webSocket.LoggerUtil;
 
 
 @MessageDriven(activationConfig = {@ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),@ActivationConfigProperty(propertyName = "destination", propertyValue = "java:jboss/exported/jms/queue/mojQueue") })
@@ -40,7 +41,7 @@ public class JMSQueueListener implements MessageListener
 			
 			if(message.getReceivers() == null || message.getReceivers().length == 0 )
 			{
-				System.out.println("PROCESS ABORTED: No recivers in the message.");
+				LoggerUtil.log("PROCESS ABORTED: No recivers in the message.");
 				return;
 			}
 			for(AID reciverAID : message.getReceivers())
@@ -70,7 +71,7 @@ public class JMSQueueListener implements MessageListener
 					}
 					catch(Exception e)
 					{
-						System.out.println("PROCESS ABORTED: Agent " + reciverAID.getName() + " is not supported.");
+						LoggerUtil.log("PROCESS ABORTED: Agent " + reciverAID.getName() + " is not supported.");
 					}
 				}
 				else //the message is for an agent running on another node

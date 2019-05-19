@@ -1,17 +1,19 @@
 package webSocket;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.ejb.EJB;
+import javax.websocket.EncodeException;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-import agent.Agent;
 import agent.AgentType;
+import agentCenter.AgentCenterAPI;
 import webSocket.dto.AgentClassesDTO;
-import webSocket.dto.RunningAgentsDTO;
 import webSocket.encoders.AgentClassEncoder;
 import webSocket.encoders.RunningAgentsEncoder;
 
@@ -19,32 +21,17 @@ import webSocket.encoders.RunningAgentsEncoder;
 @ServerEndpoint(value = "/refreshAgentClasses", encoders = {AgentClassEncoder.class, RunningAgentsEncoder.class})
 public class RefreshAgentClasses
 {
+	
 	private static List<Session> sessions = new ArrayList<Session>();
 	
 	public static void refresh(Collection<ArrayList<AgentType>> newCollection)
 	{
-		ArrayList<ArrayList<AgentType>> list = new ArrayList<ArrayList<AgentType>>(newCollection); 
-		ArrayList<String> uniqueTypes = new ArrayList<String>();
-		
-		for( int i = 0 ; i < list.size() ; i ++ )
-		{
-			for( int j = 0 ; j < list.get(i).size() ; j ++)
-			{
-				String temp = list.get(i).get(j).getName();
-				if(!uniqueTypes.contains(temp))
-				{
-					uniqueTypes.add(temp);
-				}
-			}
-		}
-		
-		
 		for (Session session : RefreshAgentClasses.sessions)
 		{
 			try 
 			{
 				
-				AgentClassesDTO classesDTO = new AgentClassesDTO(uniqueTypes);
+				AgentClassesDTO classesDTO = new AgentClassesDTO(newCollection);
 				
 				session.getBasicRemote().sendObject(classesDTO);
 			}
@@ -60,6 +47,5 @@ public class RefreshAgentClasses
 	public void onOpen(Session session) 
 	{
 		RefreshAgentClasses.sessions.add(session);
-	}
-	
+	}	
 }
