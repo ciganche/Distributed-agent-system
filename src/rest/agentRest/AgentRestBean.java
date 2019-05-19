@@ -33,7 +33,7 @@ import agent.AgentAPI;
 import agent.AgentType;
 import agentCenter.AgentCenterAPI;
 import agentCenter.Node;
-import webSocketLogger.LoggerUtil;
+import webSocket.LoggerUtil;
 
 @Path("/agents")
 @LocalBean

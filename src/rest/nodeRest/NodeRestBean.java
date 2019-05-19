@@ -28,7 +28,7 @@ import agent.Agent;
 import agentCenter.AgentCenter;
 import agentCenter.AgentCenterAPI;
 import agentCenter.Node;
-import webSocketLogger.LoggerUtil;
+import webSocket.LoggerUtil;
 
 @Path("/agentCenter")
 @LocalBean

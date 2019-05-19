@@ -3,7 +3,7 @@ package agent;
 import javax.ejb.Stateful;
 
 import message.ACLMessage;
-import webSocketLogger.LoggerUtil;
+import webSocket.LoggerUtil;
 
 @Stateful
 public class Agent implements AgentAPI

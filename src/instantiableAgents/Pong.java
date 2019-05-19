@@ -9,7 +9,7 @@ import agent.Agent;
 import jms.JMSQueue;
 import message.ACLMessage;
 import message.Performative;
-import webSocketLogger.LoggerUtil;
+import webSocket.LoggerUtil;
 
 @Stateful
 public class Pong extends Agent implements Serializable

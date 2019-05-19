@@ -12,7 +12,7 @@ import jms.JMSQueue;
 import message.ACLMessage;
 import message.Performative;
 import utils.ContractNetValueHolder;
-import webSocketLogger.LoggerUtil;
+import webSocket.LoggerUtil;
 
 @SuppressWarnings("serial")
 @Stateful

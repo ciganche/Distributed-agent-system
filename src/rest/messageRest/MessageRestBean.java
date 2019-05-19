@@ -16,7 +16,7 @@ import agentCenter.AgentCenterAPI;
 import jms.JMSQueue;
 import message.ACLMessage;
 import message.Performative;
-import webSocketLogger.LoggerUtil;
+import webSocket.LoggerUtil;
 
 @Path("/messages")
 @LocalBean

@@ -32,7 +32,9 @@ import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 
 import config.ReadConfigUtil;
 import rest.nodeRest.NodeRestAPI;
-import webSocketLogger.LoggerUtil;
+import webSocket.LoggerUtil;
+import webSocket.RefreshAgentClasses;
+import webSocket.RefreshRunningAgents;
 import agent.Agent;
 import agent.AgentAPI;
 import agent.AID;
@@ -502,7 +504,10 @@ public class AgentCenter implements AgentCenterAPI
 		}
 		
 		//remove the node finally
-		nodes.remove(n);	
+		nodes.remove(n);
+		
+		RefreshAgentClasses.refresh(types.values());
+		RefreshRunningAgents.refresh(getAgents());
 	}
 
 
