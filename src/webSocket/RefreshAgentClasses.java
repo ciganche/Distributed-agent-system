@@ -18,7 +18,7 @@ import webSocket.encoders.AgentClassEncoder;
 import webSocket.encoders.RunningAgentsEncoder;
 
 //{"list":["tip1","tip2"....]}
-@ServerEndpoint(value = "/refreshAgentClasses", encoders = {AgentClassEncoder.class, RunningAgentsEncoder.class})
+@ServerEndpoint(value = "/refreshAgentClasses", encoders = AgentClassEncoder.class)
 public class RefreshAgentClasses
 {
 	

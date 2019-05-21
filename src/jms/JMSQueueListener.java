@@ -60,13 +60,12 @@ public class JMSQueueListener implements MessageListener
 							throw new Exception("PROCESS ABORTED: Cannot access agent: " + reciverAID.getName());
 						}
 						
-						if(a.getAid().getType().getName().equals("Initiator") && (message.getPerformative() == Performative.REQUEST))
+						if((a.getAid().getType().getName().equals("Initiator") || a.getAid().getType().getName().equals("Agregator")) && (message.getPerformative() == Performative.REQUEST))
 						{
 							message.setContentObj(center.getAgents());
 						}
 						
 						a.handleMessage(message);
-						System.out.println("APP INFO: Message handeled on: " + center.getAlias());
 						
 					}
 					catch(Exception e)
