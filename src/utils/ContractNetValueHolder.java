@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import agent.AID;
 
+@SuppressWarnings("serial")
 public class ContractNetValueHolder implements Serializable
 {
 	

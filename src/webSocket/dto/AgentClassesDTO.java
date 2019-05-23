@@ -1,11 +1,13 @@
 package webSocket.dto;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 
 import agent.AgentType;
 
-public class AgentClassesDTO 
+@SuppressWarnings("serial")
+public class AgentClassesDTO implements Serializable
 {
 	private ArrayList<String> list;
 	

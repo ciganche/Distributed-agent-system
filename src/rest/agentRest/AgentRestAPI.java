@@ -12,7 +12,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import agent.Agent;
+import agent.AID;
 import webSocket.dto.AgentClassesDTO;
 import webSocket.dto.RunningAgentsDTO;
 
@@ -27,7 +27,7 @@ public interface AgentRestAPI
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/addRunningAgent")
-	public Response addRunningAgent(Agent newAgent);
+	public Response addRunningAgent(AID newAgent);
 	
 	@GET
 	@Path("/running")

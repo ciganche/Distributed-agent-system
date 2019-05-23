@@ -2,12 +2,9 @@ package agentCenter;
 
 
 
-import java.awt.List;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -36,7 +33,6 @@ import webSocket.LoggerUtil;
 import webSocket.RefreshAgentClasses;
 import webSocket.RefreshRunningAgents;
 import agent.Agent;
-import agent.AgentAPI;
 import agent.AID;
 import agent.AgentType;
 
@@ -131,6 +127,7 @@ public class AgentCenter implements AgentCenterAPI
 			
 			//remove the existance of the node
 			ResteasyWebTarget target = client.target("http://" + masteraddress +"/AgentTechnology/rest/agentCenter/node/" + alias);
+			@SuppressWarnings("unused")
 			Response response = target.request().delete();
 			System.out.println("APP INFO: Non-master node " + alias + " is shutting down.");
 		}

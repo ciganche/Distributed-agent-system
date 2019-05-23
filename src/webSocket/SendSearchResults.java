@@ -27,8 +27,7 @@ public class SendSearchResults
 			}
 			catch (Exception e)
 			{
-				e.printStackTrace();
-				System.out.println("WEB SOCKET TRANSFER FAILED: Cannot send search results.");
+				System.out.println("WEB SOCKET TRANSFER FAILED: Cannot send search results - retrying.");
 			}
 		}	
 	}

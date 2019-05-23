@@ -46,7 +46,7 @@ public class LoggerUtil {
 			}
 			catch (Exception e)
 			{
-				e.printStackTrace();
+				System.out.println("Cannot log - retrying.");
 			}
 
 		}

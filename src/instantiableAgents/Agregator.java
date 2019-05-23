@@ -1,5 +1,6 @@
 package instantiableAgents;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import javax.ejb.Stateful;
@@ -14,12 +15,15 @@ import webSocket.LoggerUtil;
 import webSocket.SendSearchResults;
 import webSocket.dto.PagesDTO;
 
+@SuppressWarnings("serial")
 @Stateful
-public class Agregator extends Agent
+public class Agregator extends Agent implements Serializable
 {
 	
 	public PagesDTO list = new PagesDTO();
 	
+
+
 	@Override
 	public void handleMessage(ACLMessage message)
 	{
@@ -47,6 +51,7 @@ public class Agregator extends Agent
 	private void sendResults() 
 	{
 		SendSearchResults.refresh(list);
+		list.empty();
 	}
 
 	private void handleSearchResult(ACLMessage message) 
@@ -54,12 +59,11 @@ public class Agregator extends Agent
 		@SuppressWarnings("unchecked")
 		ArrayList<Page> result = (ArrayList<Page>) message.getContentObj();
 		list.addUnique(result);
-		System.out.println("* * *Primio rezultate");
 	}
 
 	private void waitForParticipans(ACLMessage message, int sleepSeconds)
 	{		
-		LoggerUtil.log("Agent: [" + this.getAid().getName() + " - Initiator] waits for data to collect for " + sleepSeconds + " seconds.");
+		LoggerUtil.log("Agent: [" + this.getAid().getName() + " - Agregator] waits for data to collect for " + sleepSeconds + " seconds.");
 		
 		ACLMessage pause = new ACLMessage();
 		pause.setReceivers(new AID[]{this.getAid()});
@@ -120,5 +124,13 @@ public class Agregator extends Agent
 		searchMessage.setPerformative(Performative.SEARCH);
 		
 		new JMSQueue(searchMessage);
+	}
+	
+	public PagesDTO getList() {
+		return list;
+	}
+
+	public void setList(PagesDTO list) {
+		this.list = list;
 	}
 }

@@ -5,6 +5,7 @@ import javax.ejb.Stateful;
 import message.ACLMessage;
 import webSocket.LoggerUtil;
 
+@SuppressWarnings("serial")
 @Stateful
 public class Agent implements AgentAPI
 {

@@ -68,7 +68,7 @@ public class AgentRestBean implements AgentRestAPI
 			
 			if(theOne==null)
 			{
-				LoggerUtil.log("PROCESS ABORTED: The system does not suppert this agent type.");
+				LoggerUtil.log("PROCESS ABORTED: The system does not support this agent type.");
 				return Response.status(404).build();
 			}
 			else
@@ -96,9 +96,7 @@ public class AgentRestBean implements AgentRestAPI
 			newAgent.setAid(aid);
 			center.addAgent(newAgent);
 			context.close();
-			
-			LoggerUtil.log("Agent started: [" + newAgent.getAid().getName() + " - " + newAgent.getAid().getType().getName() + "]");
-			
+						
 			
 			//inform all other nods that a agent is active
 			ResteasyClient client = new ResteasyClientBuilder().build();
@@ -112,10 +110,11 @@ public class AgentRestBean implements AgentRestAPI
 				{
 					ResteasyWebTarget target = client.target("http://" + n.getAddress() +"/AgentTechnology/rest/agents/addRunningAgent");
 					
-					Response response = target.request(MediaType.APPLICATION_JSON).put(Entity.entity(newAgent, MediaType.APPLICATION_JSON)); 	
+					Response response = target.request(MediaType.APPLICATION_JSON).put(Entity.entity(newAgent.getAid(), MediaType.APPLICATION_JSON)); 	
 				
 					if(response.getStatus()!=200)
 					{
+						System.out.println("STATUS: " + response.getStatus());
 						throw new Exception("PROCESS ABORTED: Addition of running agent for node " + n.getAlias() + " failed");
 					}
 
@@ -141,11 +140,11 @@ public class AgentRestBean implements AgentRestAPI
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/addRunningAgent")
-	public Response addRunningAgent(Agent newAgent) 
+	public Response addRunningAgent(AID newAgentAID) 
 	{	
-		center.addAgent(newAgent);
+		center.addAgent(new Agent(newAgentAID));
 
-		System.out.println("APP INFO: Added to: " + center.getAlias() + " and agent started: " + newAgent.getAid().getName() + " - " + newAgent.getAid().getType());
+		System.out.println("APP INFO: Added to: " + center.getAlias() + " and agent started: " + newAgentAID.getName() + " - " + newAgentAID.getType());
 
 		return Response.status(200).build();
 	}

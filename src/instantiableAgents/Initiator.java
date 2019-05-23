@@ -86,7 +86,7 @@ public class Initiator extends Agent implements Serializable
 	
 	private void waitForParticipans(ACLMessage message, int sleepSeconds)
 	{		
-		LoggerUtil.log("Agent: [" + this.getAid().getName() + " - Initiator] waits for proposals to collect for: " + sleepSeconds);
+		LoggerUtil.log("Agent: [" + this.getAid().getName() + " - Initiator] waits for proposals to collect for " + sleepSeconds + " seconds.");
 		
 		ACLMessage pause = new ACLMessage();
 		pause.setReceivers(new AID[]{this.getAid()});

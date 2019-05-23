@@ -1,14 +1,10 @@
 package rest.nodeRest;
 
 
-import java.util.ArrayList;
-
 import javax.ejb.AccessTimeout;
-import javax.ejb.ConcurrencyManagement;
 import javax.ejb.EJB;
 import javax.ejb.LocalBean;
-import javax.ejb.Lock;
-import javax.ejb.LockType;
+
 import javax.ejb.Stateless;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -19,12 +15,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import org.jboss.resteasy.client.jaxrs.ResteasyClient;
-import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
-import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
-
-import agent.Agent;
 import agentCenter.AgentCenter;
 import agentCenter.AgentCenterAPI;
 import agentCenter.Node;

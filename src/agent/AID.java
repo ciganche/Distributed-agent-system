@@ -3,6 +3,7 @@ import java.io.Serializable;
 
 import agentCenter.Node;
 
+@SuppressWarnings("serial")
 public class AID implements Serializable
 {
 	private String name;

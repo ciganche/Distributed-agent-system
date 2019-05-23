@@ -12,6 +12,7 @@ import message.ACLMessage;
 import message.Performative;
 import webSocket.LoggerUtil;
 
+@SuppressWarnings("serial")
 @Stateful
 public class Participant extends Agent implements Serializable
 {

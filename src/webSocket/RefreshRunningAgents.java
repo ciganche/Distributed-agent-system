@@ -28,8 +28,7 @@ public class RefreshRunningAgents
 			}
 			catch (Exception e)
 			{
-				System.out.println("WEB SOCKET TRANSFER FAILED: Cannot send running agents.");
-				e.printStackTrace();
+				System.out.println("WEB SOCKET TRANSFER FAILED: Cannot send running agents - retrying.");
 			}
 		}	
 	}

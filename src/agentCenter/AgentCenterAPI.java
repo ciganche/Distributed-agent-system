@@ -9,7 +9,6 @@ import javax.ejb.Local;
 
 import agent.AID;
 import agent.Agent;
-import agent.AgentAPI;
 import agent.AgentType;
 
 @Local

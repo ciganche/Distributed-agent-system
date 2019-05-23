@@ -2,6 +2,7 @@ package agent;
 
 import java.io.Serializable;
 
+@SuppressWarnings("serial")
 public class AgentType implements Serializable
 {
 	private String name;

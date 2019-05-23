@@ -2,6 +2,7 @@ package agentCenter;
 
 import java.io.Serializable;
 
+@SuppressWarnings("serial")
 public class Node implements Serializable
 {
 	private String alias;

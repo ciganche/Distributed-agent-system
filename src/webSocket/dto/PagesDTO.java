@@ -5,7 +5,8 @@ import java.util.ArrayList;
 
 import crawlerUtils.Page;
 
-public class PagesDTO
+@SuppressWarnings("serial")
+public class PagesDTO implements Serializable
 {
 	ArrayList<Page> list = new ArrayList<Page>();
 
@@ -47,5 +48,10 @@ public class PagesDTO
 			if(!found)
 				list.add(p1);
 		}
+	}
+
+	public void empty() 
+	{
+		list.clear();
 	}
 }

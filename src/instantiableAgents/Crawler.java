@@ -1,5 +1,6 @@
 package instantiableAgents;
 
+import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,12 +19,13 @@ import message.ACLMessage;
 import message.Performative;
 import webSocket.LoggerUtil;
 
+@SuppressWarnings("serial")
 @Stateful
-public class Crawler extends Agent
+public class Crawler extends Agent implements Serializable
 {
 	
-	public String location=null;
-	
+	private String location=null;
+
 	@Override
 	public void handleMessage(ACLMessage message)
 	{
@@ -115,9 +117,7 @@ public class Crawler extends Agent
 		catch(Exception e)
 		{
 			LoggerUtil.log("ERROR: No file found.");
-		}
-
-			
+		}		
 	}
 	
 }
