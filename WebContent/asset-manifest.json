@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/AgentTechnology/static/css/main.560b8c4b.chunk.css",
-    "main.js": "/AgentTechnology/static/js/main.e04dceaf.chunk.js",
-    "main.js.map": "/AgentTechnology/static/js/main.e04dceaf.chunk.js.map",
-    "runtime~main.js": "/AgentTechnology/static/js/runtime~main.6040c9a3.js",
-    "runtime~main.js.map": "/AgentTechnology/static/js/runtime~main.6040c9a3.js.map",
-    "static/js/2.a3598054.chunk.js": "/AgentTechnology/static/js/2.a3598054.chunk.js",
-    "static/js/2.a3598054.chunk.js.map": "/AgentTechnology/static/js/2.a3598054.chunk.js.map",
-    "index.html": "/AgentTechnology/index.html",
-    "precache-manifest.2ae807bcf33f9325e86717e7422afb98.js": "/AgentTechnology/precache-manifest.2ae807bcf33f9325e86717e7422afb98.js",
-    "service-worker.js": "/AgentTechnology/service-worker.js",
-    "static/css/main.560b8c4b.chunk.css.map": "/AgentTechnology/static/css/main.560b8c4b.chunk.css.map"
+    "main.css": "./static/css/main.560b8c4b.chunk.css",
+    "main.js": "./static/js/main.9d19d156.chunk.js",
+    "main.js.map": "./static/js/main.9d19d156.chunk.js.map",
+    "runtime~main.js": "./static/js/runtime~main.d653cc00.js",
+    "runtime~main.js.map": "./static/js/runtime~main.d653cc00.js.map",
+    "static/js/2.a314f72f.chunk.js": "./static/js/2.a314f72f.chunk.js",
+    "static/js/2.a314f72f.chunk.js.map": "./static/js/2.a314f72f.chunk.js.map",
+    "index.html": "./index.html",
+    "precache-manifest.c08d8f06bf3f5779ee129a5d22e6a3a6.js": "./precache-manifest.c08d8f06bf3f5779ee129a5d22e6a3a6.js",
+    "service-worker.js": "./service-worker.js",
+    "static/css/main.560b8c4b.chunk.css.map": "./static/css/main.560b8c4b.chunk.css.map"
   }
 }
