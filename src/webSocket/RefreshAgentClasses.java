@@ -22,12 +22,13 @@ public class RefreshAgentClasses
 	
 	public static void refresh(Collection<ArrayList<AgentType>> newCollection)
 	{
+		
+		AgentClassesDTO classesDTO = new AgentClassesDTO(newCollection);
+		
 		for (Session session : RefreshAgentClasses.sessions)
 		{
 			try 
 			{
-				
-				AgentClassesDTO classesDTO = new AgentClassesDTO(newCollection);
 				
 				session.getBasicRemote().sendObject(classesDTO);
 			}
