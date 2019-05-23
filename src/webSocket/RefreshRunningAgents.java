@@ -18,12 +18,12 @@ public class RefreshRunningAgents
 	
 	public static void refresh(ArrayList<Agent> list)
 	{
+		RunningAgentsDTO dto = new RunningAgentsDTO(list);
 		
 		for (Session session : RefreshRunningAgents.sessions)
 		{
 			try 
 			{
-				RunningAgentsDTO dto = new RunningAgentsDTO(list);
 				session.getBasicRemote().sendObject(dto);
 			}
 			catch (Exception e)
