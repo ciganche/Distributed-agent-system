@@ -2,6 +2,7 @@ package instantiableAgents;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 import javax.ejb.Stateful;
 
@@ -54,6 +55,7 @@ public class Agregator extends Agent implements Serializable
 		list.empty();
 	}
 
+	@SuppressWarnings("unchecked")
 	private void handleSearchResult(ACLMessage message) 
 	{
 		
