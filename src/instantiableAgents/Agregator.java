@@ -56,8 +56,33 @@ public class Agregator extends Agent implements Serializable
 
 	private void handleSearchResult(ACLMessage message) 
 	{
-		@SuppressWarnings("unchecked")
-		ArrayList<Page> result = (ArrayList<Page>) message.getContentObj();
+		
+		
+		ArrayList<Page> result = new ArrayList<Page>();
+
+		ArrayList<Object> inputList = (ArrayList<Object>) message.getContentObj();
+		if(inputList.size() == 0 )
+			return;
+		
+		if(inputList.get(0) instanceof Page)
+		{
+			result = (ArrayList<Page>) message.getContentObj();
+		}
+		else
+		{
+			@SuppressWarnings("rawtypes")
+			ArrayList<LinkedHashMap> temp = (ArrayList<LinkedHashMap>) message.getContentObj();
+
+			for (@SuppressWarnings("rawtypes") LinkedHashMap lhm : temp)
+			{
+				result.add(new Page((String)lhm.get("name"), (String)lhm.get("description"),(String) lhm.get("url")));
+			}
+		}
+		
+		System.out.print("* * * " + result.toString());
+		
+		
+		
 		list.addUnique(result);
 	}
 
