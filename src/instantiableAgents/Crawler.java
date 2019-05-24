@@ -33,7 +33,7 @@ public class Crawler extends Agent implements Serializable
 		{
 			case SET_LOCATION: 
 				location = message.getContent();
-				LoggerUtil.log("Crawling location set to: " + location);
+				LoggerUtil.log("[" + this.getAid().getName() +" - Crawler] crawling location set to: " + location);
 			break;
 			
 			
